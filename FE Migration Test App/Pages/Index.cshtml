@@ -1,0 +1,60 @@
+﻿@page
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h3>Salesforce connection test</h3>
+</div>
+<div>
+    <input class="btn btn-primary" type="button" id="btnCode" value="Requst Code" />
+    <input class="btn btn-primary" type="button" id="btnToken" value="Requst Token" />
+    <input class="btn btn-primary" type="button" id="btnGetData" value="Get Data" />
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#btnCode").click(function () {
+            var redirecturl = encodeURI('https://localhost:44337/logincallback');
+            var url = 'https://test.salesforce.com/services/oauth2/authorize?client_id=3MVG973QtA4.tpvmGIsm1S6VuSYX4amnwN0GPBrZx_Gh9vTdJVvJVivSfejHTlR1Hrg4DcHXrYJQqKaVUd13d&response_type=code&redirect_uri=' + redirecturl;
+            window.location.href = url;
+        });
+        $("#btnToken").click(function () {
+            var redirecturl = encodeURI('https://localhost:44337/logincallback');
+            var url = 'https://test.salesforce.com/services/oauth2/authorize?client_id=3MVG973QtA4.tpvmGIsm1S6VuSYX4amnwN0GPBrZx_Gh9vTdJVvJVivSfejHTlR1Hrg4DcHXrYJQqKaVUd13d&response_type=token&redirect_uri=' + redirecturl;
+            window.location.href = url;
+        });
+        $("#btnGetData").click(function () {
+            var request = new XMLHttpRequest()
+            var url = 'https://northmillef--nmefmazed.cs27.my.salesforce.com/services/apexrest/Cases/';
+            const json = {
+                "className": "NMEF_Application",
+                "methodName": "getAllApplicationRecordsWithStatusAndInvoiceLimitWithOffset",
+                "payload": {
+                    "status": "Submitted",
+                    "invoiceLimit": 9999999,
+                    "offset": 0
+                }
+            };
+            request.open('POST', url, true)
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.setRequestHeader("Authorization", "Authorization: Bearer 00D220000000gYC!AQkAQMmy5.G2F4ZkKuIR7kOD2ZuQpxNiAqoI64RWfUpqtr5RjfZlSzwm8ogjSqI6SMXNiP1kjOnC_IlV29WLI6IuZ4iDfaU2"); 
+            request.onload = function () {
+                // Begin accessing JSON data here
+                var data = JSON.parse(this.response)
+
+                if (request.status >= 200 && request.status < 400) {
+                    console.log(data)
+                } else {
+                    console.log('error')
+                }
+            }
+
+            request.send(JSON.stringify(json));
+           
+        });
+    });
+
+</script>

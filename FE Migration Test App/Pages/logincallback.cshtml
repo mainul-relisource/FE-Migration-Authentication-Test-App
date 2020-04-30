@@ -1,0 +1,94 @@
+﻿@page "{code:int?}"
+@model FE_Migration_Test_App.Pages.logincallbackModel
+@{
+    ViewData["Title"] = "logincallback";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<h1>logincallback</h1>
+
+<div>
+    <input class="btn btn-primary" type="button" id="btnRequestToken" value="Request Token" />
+    <input class="btn btn-primary" type="button" id="btnParseToken" value="Parse Token" />
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#btnRequestToken").click(function () {
+            const queryString = window.location.search; 
+          
+            var urlParams = new URLSearchParams(queryString);
+
+            var code = urlParams.get('code');
+
+            console.log(code);
+            var request = new XMLHttpRequest()
+            var redirecturl = encodeURI('https://localhost:44337/logincallback');
+            var url = 'https://test.salesforce.com/services/oauth2/token';
+            const json = {
+                "grant_type": "authorization_code",
+                "client_id": "3MVG973QtA4.tpvmGIsm1S6VuSYX4amnwN0GPBrZx_Gh9vTdJVvJVivSfejHTlR1Hrg4DcHXrYJQqKaVUd13d",
+                "client_secret": "A5581EE496691EBA12A57B6930B3717286861075783680E1C38F7B75F6ACFD85",
+                "code": code,
+                "redirect_uri": redirecturl
+            };
+            request.open('POST', url, true)
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.onload = function () {
+                // Begin accessing JSON data here
+                var data = JSON.parse(this.response)
+
+                if (request.status >= 200 && request.status < 400) {
+                    console.log(data)
+                } else {
+                    console.log('error')
+                }
+            }
+
+            request.send(json);
+
+        });
+
+        $("#btnParseToken").click(function () {
+            const hashurl = decodeURI(window.location.hash.substr(1));
+            const hash2Obj = hashurl
+                .split("&")
+                .map(v => v.split("="))
+                .reduce((pre, [key, value]) => ({ ...pre, [key]: value }), {});
+
+            const access_token = hash2Obj.access_token;
+
+            console.log(access_token);
+            alert(access_token);
+            var request = new XMLHttpRequest()
+            var url = 'https://northmillef--nmefmazed.cs27.my.salesforce.com/services/apexrest/Cases/';
+            const json = {
+                "className": "NMEF_Application",
+                "methodName": "getAllApplicationRecordsWithStatusAndInvoiceLimitWithOffset",
+                "payload": {
+                    "status": "Submitted",
+                    "invoiceLimit": 9999999,
+                    "offset": 0
+                }
+            };
+            request.open('POST', url, true)
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.setRequestHeader("Authorization", "Authorization: Bearer " + access_token);
+            request.onload = function () {
+                // Begin accessing JSON data here
+                var data = JSON.parse(this.response)
+
+                if (request.status >= 200 && request.status < 400) {
+                    console.log(data)
+                    alert(data)
+                } else {
+                    console.log('error')
+                }
+            }
+
+            request.send(JSON.stringify(json));
+        });
+    });
+
+</script>
+
